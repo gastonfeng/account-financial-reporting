@@ -31,7 +31,7 @@ import time
 from openerp.tools.translate import _
 
 
-class account_financial_report(osv.osv):
+class account_financial_report(models.Model):
     _name = "afr"
 
     _columns = {
