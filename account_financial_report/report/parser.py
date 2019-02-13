@@ -34,8 +34,8 @@ from openerp.osv import osv
 
 class account_balance(report_sxw.rml_parse):
 
-    def __init__(self, cr, uid, name, context):
-        super(account_balance, self).__init__(cr, uid, name, context)
+    def __init__(self,  name, context):
+        super(account_balance, self).__init__( name, context)
         self.sum_debit = 0.00
         self.sum_credit = 0.00
         self.sum_balance = 0.00
@@ -423,17 +423,17 @@ class account_balance(report_sxw.rml_parse):
         period_obj = self.pool.get('account.period')
         fiscalyear_obj = self.pool.get('account.fiscalyear')
 
-        def _get_children_and_consol(cr, uid, ids, level, context={},
+        def _get_children_and_consol( ids, level, context={},
                                      change_sign=False):
             aa_obj = self.pool.get('account.account')
             ids2 = []
-            for aa_brw in aa_obj.browse(cr, uid, ids, context):
+            for aa_brw in aa_obj.browse( ids, context):
                 if aa_brw.child_id and aa_brw.level < level \
                         and aa_brw.type != 'consolidation':
                     if not change_sign:
                         ids2.append([aa_brw.id, True, False, aa_brw])
                     ids2 += _get_children_and_consol(
-                        cr, uid, [x.id for x in aa_brw.child_id], level,
+                         [x.id for x in aa_brw.child_id], level,
                         context, change_sign=change_sign)
                     if change_sign:
                         ids2.append(aa_brw.id)

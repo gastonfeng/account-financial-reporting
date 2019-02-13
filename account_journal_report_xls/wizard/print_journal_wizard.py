@@ -48,9 +48,9 @@ class account_print_journal_xls(orm.TransientModel):
         'group_entries': True,
     }
 
-    def fields_get(self, cr, uid, fields=None, context=None):
+    def fields_get(self,  fields=None, context=None):
         res = super(account_print_journal_xls, self).fields_get(
-            cr, uid, fields, context)
+             fields, context)
         if context.get('print_by') == 'fiscalyear':
             if 'fiscalyear_id' in res:
                 res['fiscalyear_id']['required'] = True
@@ -65,7 +65,7 @@ class account_print_journal_xls(orm.TransientModel):
                 res['period_to']['required'] = True
         return res
 
-    def fy_period_ids(self, cr, uid, fiscalyear_id):
+    def fy_period_ids(self,  fiscalyear_id):
         """ returns all periods from a fiscalyear sorted by date """
         fy_period_ids = []
         cr.execute('''
@@ -78,39 +78,39 @@ class account_print_journal_xls(orm.TransientModel):
             fy_period_ids = [x[0] for x in res]
         return fy_period_ids
 
-    def onchange_fiscalyear_id(self, cr, uid, ids, fiscalyear_id=False,
+    def onchange_fiscalyear_id(self,  ids, fiscalyear_id=False,
                                context=None):
         res = {'value': {}}
         if context.get('print_by') == 'fiscalyear':
             # get period_from/to with opening/close periods
-            fy_period_ids = self.fy_period_ids(cr, uid, fiscalyear_id)
+            fy_period_ids = self.fy_period_ids( fiscalyear_id)
             if fy_period_ids:
                 res['value']['period_from'] = fy_period_ids[0]
                 res['value']['period_to'] = fy_period_ids[-1]
         return res
 
-    def fields_view_get(self, cr, uid, view_id=None, view_type='form',
+    def fields_view_get(self,  view_id=None, view_type='form',
                         context=None, toolbar=False, submenu=False):
         """ skip account.common.journal.report,fields_view_get
         (adds domain filter on journal type)  """
         return super(account_common_journal_report, self).\
-            fields_view_get(cr, uid, view_id, view_type, context, toolbar,
+            fields_view_get( view_id, view_type, context, toolbar,
                             submenu)
 
-    def xls_export(self, cr, uid, ids, context=None):
-        return self.print_report(cr, uid, ids, context=context)
+    def xls_export(self,  ids, context=None):
+        return self.print_report( ids, context=context)
 
-    def print_report(self, cr, uid, ids, context=None):
+    def print_report(self,  ids, context=None):
         if context is None:
             context = {}
         move_obj = self.pool.get('account.move')
         print_by = context.get('print_by')
-        wiz_form = self.browse(cr, uid, ids)[0]
+        wiz_form = self.browse( ids)[0]
         fiscalyear_id = wiz_form.fiscalyear_id.id
         company_id = wiz_form.company_id.id
 
         if print_by == 'fiscalyear':
-            wiz_period_ids = self.fy_period_ids(cr, uid, fiscalyear_id)
+            wiz_period_ids = self.fy_period_ids( fiscalyear_id)
         else:
             period_from = wiz_form.period_from
             period_to = wiz_form.period_to
@@ -148,7 +148,7 @@ class account_print_journal_xls(orm.TransientModel):
         if print_by == 'fiscalyear':
             journal_fy_ids = []
             for journal_id in wiz_journal_ids:
-                aml_ids = move_obj.search(cr, uid,
+                aml_ids = move_obj.search(
                                           [('journal_id', '=', journal_id),
                                            ('period_id', 'in', wiz_period_ids),
                                            ('state', 'in', move_states)],
@@ -170,7 +170,7 @@ class account_print_journal_xls(orm.TransientModel):
             for journal_id in wiz_journal_ids:
                 period_ids = []
                 for period_id in wiz_period_ids:
-                    aml_ids = move_obj.search(cr, uid,
+                    aml_ids = move_obj.search(
                                               [('journal_id', '=', journal_id),
                                                ('period_id', '=', period_id),
                                                ('state', 'in', move_states)],

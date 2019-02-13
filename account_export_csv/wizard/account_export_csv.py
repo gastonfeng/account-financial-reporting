@@ -95,31 +95,31 @@ class AccountCSVExport(orm.TransientModel):
         'export_filename': fields.char('Export CSV Filename', size=128),
     }
 
-    def _get_company_default(self, cr, uid, context=None):
+    def _get_company_default(self,  context=None):
         comp_obj = self.pool['res.company']
-        return comp_obj._company_default_get(cr, uid, 'account.fiscalyear',
+        return comp_obj._company_default_get( 'account.fiscalyear',
                                              context=context)
 
-    def _get_fiscalyear_default(self, cr, uid, context=None):
+    def _get_fiscalyear_default(self,  context=None):
         fiscalyear_obj = self.pool['account.fiscalyear']
         context = dict(context,
-                       company_id=self._get_company_default(cr, uid, context))
-        return fiscalyear_obj.find(cr, uid, dt=None, exception=True,
+                       company_id=self._get_company_default( context))
+        return fiscalyear_obj.find( dt=None, exception=True,
                                    context=context)
 
     _defaults = {'company_id': _get_company_default,
                  'fiscalyear_id': _get_fiscalyear_default,
                  'export_filename': 'account_export.csv'}
 
-    def action_manual_export_account(self, cr, uid, ids, context=None):
-        this = self.browse(cr, uid, ids)[0]
-        rows = self.get_data(cr, uid, ids, "account", context)
+    def action_manual_export_account(self,  ids, context=None):
+        this = self.browse( ids)[0]
+        rows = self.get_data( ids, "account", context)
         file_data = StringIO()
         try:
             writer = AccountUnicodeWriter(file_data)
             writer.writerows(rows)
             file_value = file_data.getvalue()
-            self.write(cr, uid, ids,
+            self.write( ids,
                        {'data': base64.encodestring(file_value)},
                        context=context)
         finally:
@@ -134,7 +134,7 @@ class AccountCSVExport(orm.TransientModel):
             'target': 'new',
         }
 
-    def _get_header_account(self, cr, uid, ids, context=None):
+    def _get_header_account(self,  ids, context=None):
         return [_(u'CODE'),
                 _(u'NAME'),
                 _(u'DEBIT'),
@@ -142,7 +142,7 @@ class AccountCSVExport(orm.TransientModel):
                 _(u'BALANCE'),
                 ]
 
-    def _get_rows_account(self, cr, uid, ids,
+    def _get_rows_account(self,  ids,
                           fiscalyear_id,
                           period_range_ids,
                           journal_ids,
@@ -171,15 +171,15 @@ class AccountCSVExport(orm.TransientModel):
             rows.append(list(line))
         return rows
 
-    def action_manual_export_analytic(self, cr, uid, ids, context=None):
-        this = self.browse(cr, uid, ids)[0]
-        rows = self.get_data(cr, uid, ids, "analytic", context)
+    def action_manual_export_analytic(self,  ids, context=None):
+        this = self.browse( ids)[0]
+        rows = self.get_data( ids, "analytic", context)
         file_data = StringIO()
         try:
             writer = AccountUnicodeWriter(file_data)
             writer.writerows(rows)
             file_value = file_data.getvalue()
-            self.write(cr, uid, ids,
+            self.write( ids,
                        {'data': base64.encodestring(file_value)},
                        context=context)
         finally:
@@ -194,7 +194,7 @@ class AccountCSVExport(orm.TransientModel):
             'target': 'new',
         }
 
-    def _get_header_analytic(self, cr, uid, ids, context=None):
+    def _get_header_analytic(self,  ids, context=None):
         return [_(u'ANALYTIC CODE'),
                 _(u'ANALYTIC NAME'),
                 _(u'CODE'),
@@ -204,7 +204,7 @@ class AccountCSVExport(orm.TransientModel):
                 _(u'BALANCE'),
                 ]
 
-    def _get_rows_analytic(self, cr, uid, ids,
+    def _get_rows_analytic(self,  ids,
                            fiscalyear_id,
                            period_range_ids,
                            journal_ids,
@@ -237,7 +237,7 @@ class AccountCSVExport(orm.TransientModel):
             rows.append(list(line))
         return rows
 
-    def action_manual_export_journal_entries(self, cr, uid, ids, context=None):
+    def action_manual_export_journal_entries(self,  ids, context=None):
         """
         Here we use TemporaryFile to avoid full filling the OpenERP worker
         Memory
@@ -256,8 +256,8 @@ class AccountCSVExport(orm.TransientModel):
 
         Tested with up to a generation of 700k entry lines
         """
-        this = self.browse(cr, uid, ids)[0]
-        rows = self.get_data(cr, uid, ids, "journal_entries", context)
+        this = self.browse( ids)[0]
+        rows = self.get_data( ids, "journal_entries", context)
         with tempfile.TemporaryFile() as file_data:
             writer = AccountUnicodeWriter(file_data)
             writer.writerows(rows)
@@ -279,7 +279,7 @@ class AccountCSVExport(orm.TransientModel):
             'target': 'new',
         }
 
-    def _get_header_journal_entries(self, cr, uid, ids, context=None):
+    def _get_header_journal_entries(self,  ids, context=None):
         return [
             # Standard Sage export fields
             _(u'DATE'),
@@ -310,7 +310,7 @@ class AccountCSVExport(orm.TransientModel):
             _(u'BANK STATEMENT'),
         ]
 
-    def _get_rows_journal_entries(self, cr, uid, ids,
+    def _get_rows_journal_entries(self,  ids,
                                   fiscalyear_id,
                                   period_range_ids,
                                   journal_ids,
@@ -387,11 +387,11 @@ class AccountCSVExport(orm.TransientModel):
             for row in rows:
                 yield row
 
-    def get_data(self, cr, uid, ids, result_type, context=None):
+    def get_data(self,  ids, result_type, context=None):
         get_header_func = getattr(
             self, ("_get_header_%s" % (result_type)), None)
         get_rows_func = getattr(self, ("_get_rows_%s" % (result_type)), None)
-        form = self.browse(cr, uid, ids[0], context=context)
+        form = self.browse( ids[0], context=context)
         fiscalyear_id = form.fiscalyear_id.id
         if form.periods:
             period_range_ids = [x.id for x in form.periods]
@@ -399,17 +399,17 @@ class AccountCSVExport(orm.TransientModel):
             # If not period selected , we take all periods
             p_obj = self.pool.get("account.period")
             period_range_ids = p_obj.search(
-                cr, uid, [('fiscalyear_id', '=', fiscalyear_id)],
+                 [('fiscalyear_id', '=', fiscalyear_id)],
                 context=context)
         journal_ids = None
         if form.journal_ids:
             journal_ids = [x.id for x in form.journal_ids]
         else:
             j_obj = self.pool.get("account.journal")
-            journal_ids = j_obj.search(cr, uid, [], context=context)
-        rows = itertools.chain((get_header_func(cr, uid, ids,
+            journal_ids = j_obj.search( [], context=context)
+        rows = itertools.chain((get_header_func( ids,
                                                 context=context),),
-                               get_rows_func(cr, uid, ids,
+                               get_rows_func( ids,
                                              fiscalyear_id,
                                              period_range_ids,
                                              journal_ids,

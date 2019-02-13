@@ -66,10 +66,10 @@ class nov_journal_print(report_sxw.rml_parse):
                 objects.append((journal, fiscalyear))
                 self.localcontext['objects'] = self.objects = objects
 
-    def __init__(self, cr, uid, name, context):
+    def __init__(self,  name, context):
         if context is None:
             context = {}
-        super(nov_journal_print, self).__init__(cr, uid, name, context=context)
+        super(nov_journal_print, self).__init__( name, context=context)
         self.localcontext.update({
             'time': time,
             'title': self._title,

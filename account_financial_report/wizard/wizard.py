@@ -124,16 +124,16 @@ class wizard_report(osv.osv_memory):
         'filter': lambda *a: 'byperiod',
         'display_account_level': lambda *a: 0,
         'inf_type': lambda *a: 'BS',
-        'company_id': lambda self, cr, uid, c: self.pool['res.company'].
-        _company_default_get(cr, uid, 'account.invoice', context=c),
-        'fiscalyear': lambda self, cr, uid, c: self.
+        'company_id': lambda self,  c: self.pool['res.company'].
+        _company_default_get( 'account.invoice', context=c),
+        'fiscalyear': lambda self,  c: self.
         pool['account.fiscalyear'].find(cr, uid),
         'display_account': lambda *a: 'bal_mov',
         'columns': lambda *a: 'five',
         'target_move': 'posted',
     }
 
-    def onchange_inf_type(self, cr, uid, ids, inf_type, context=None):
+    def onchange_inf_type(self,  ids, inf_type, context=None):
         if context is None:
             context = {}
         res = {'value': {}}
@@ -143,14 +143,14 @@ class wizard_report(osv.osv_memory):
 
         return res
 
-    def onchange_columns(self, cr, uid, ids, columns, fiscalyear, periods,
+    def onchange_columns(self,  ids, columns, fiscalyear, periods,
                          context=None):
         if context is None:
             context = {}
         res = {'value': {}}
 
         p_obj = self.pool.get("account.period")
-        all_periods = p_obj.search(cr, uid,
+        all_periods = p_obj.search(
                                    [('fiscalyear_id', '=', fiscalyear),
                                     ('special', '=', False)], context=context)
         s = set(periods[0][2])
@@ -169,18 +169,18 @@ class wizard_report(osv.osv_memory):
                 res['value'].update({'periods': []})
         return res
 
-    def onchange_analytic_ledger(self, cr, uid, ids, company_id,
+    def onchange_analytic_ledger(self,  ids, company_id,
                                  analytic_ledger, context=None):
         if context is None:
             context = {}
         context['company_id'] = company_id
         res = {'value': {}}
         cur_id = self.pool.get('res.company').browse(
-            cr, uid, company_id, context=context).currency_id.id
+             company_id, context=context).currency_id.id
         res['value'].update({'currency_id': cur_id})
         return res
 
-    def onchange_company_id(self, cr, uid, ids, company_id, context=None):
+    def onchange_company_id(self,  ids, company_id, context=None):
         if context is None:
             context = {}
         context['company_id'] = company_id
@@ -190,9 +190,9 @@ class wizard_report(osv.osv_memory):
             return res
 
         cur_id = self.pool.get('res.company').browse(
-            cr, uid, company_id, context=context).currency_id.id
+             company_id, context=context).currency_id.id
         fy_id = self.pool.get('account.fiscalyear').find(
-            cr, uid, context=context)
+             context=context)
         res['value'].update({'fiscalyear': fy_id})
         res['value'].update({'currency_id': cur_id})
         res['value'].update({'account_list': []})
@@ -200,13 +200,13 @@ class wizard_report(osv.osv_memory):
         res['value'].update({'afr_id': None})
         return res
 
-    def onchange_afr_id(self, cr, uid, ids, afr_id, context=None):
+    def onchange_afr_id(self,  ids, afr_id, context=None):
         if context is None:
             context = {}
         res = {'value': {}}
         if not afr_id:
             return res
-        afr_brw = self.pool.get('afr').browse(cr, uid, afr_id, context=context)
+        afr_brw = self.pool.get('afr').browse( afr_id, context=context)
         res['value'].update({
                             'currency_id': afr_brw.currency_id
                             and afr_brw.currency_id.id
@@ -233,29 +233,29 @@ class wizard_report(osv.osv_memory):
             'Write a Description for your Summary Total')})
         return res
 
-    def _get_defaults(self, cr, uid, data, context=None):
+    def _get_defaults(self,  data, context=None):
         if context is None:
             context = {}
-        user = self.pool['res.users'].browse(cr, uid, uid, context=context)
+        user = self.pool['res.users'].browse( uid, context=context)
         if user.company_id:
             company_id = user.company_id.id
         else:
             company_id = self.pool['res.company'].search(
-                cr, uid, [('parent_id', '=', False)])[0]
+                 [('parent_id', '=', False)])[0]
         data['form']['company_id'] = company_id
         fiscalyear_obj = self.pool['account.fiscalyear']
         data['form']['fiscalyear'] = fiscalyear_obj.find(cr, uid)
         data['form']['context'] = context
         return data['form']
 
-    def _check_state(self, cr, uid, data, context=None):
+    def _check_state(self,  data, context=None):
         if context is None:
             context = {}
         if data['form']['filter'] == 'bydate':
-            self._check_date(cr, uid, data, context)
+            self._check_date( data, context)
         return data['form']
 
-    def _check_date(self, cr, uid, data, context=None):
+    def _check_date(self,  data, context=None):
         if context is None:
             context = {}
 
@@ -281,54 +281,54 @@ class wizard_report(osv.osv_memory):
         else:
             raise osv.except_osv(_('UserError'), 'No existe periodo fiscal')
 
-    def period_span(self, cr, uid, ids, fy_id, context=None):
+    def period_span(self,  ids, fy_id, context=None):
         if context is None:
             context = {}
         ap_obj = self.pool.get('account.period')
         fy_id = fy_id and type(fy_id) in (list, tuple) and fy_id[0] or fy_id
         if not ids:
             # ~ No hay periodos
-            return ap_obj.search(cr, uid, [('fiscalyear_id', '=', fy_id),
+            return ap_obj.search( [('fiscalyear_id', '=', fy_id),
                                            ('special', '=', False)],
                                  order='date_start asc')
 
-        ap_brws = ap_obj.browse(cr, uid, ids, context=context)
+        ap_brws = ap_obj.browse( ids, context=context)
         date_start = min([period.date_start for period in ap_brws])
         date_stop = max([period.date_stop for period in ap_brws])
 
-        return ap_obj.search(cr, uid, [('fiscalyear_id', '=', fy_id),
+        return ap_obj.search( [('fiscalyear_id', '=', fy_id),
                                        ('special', '=', False),
                                        ('date_start', '>=', date_start),
                                        ('date_stop', '<=', date_stop)],
                              order='date_start asc')
 
-    def print_report(self, cr, uid, ids, data, context=None):
+    def print_report(self,  ids, data, context=None):
         if context is None:
             context = {}
 
         data = {}
         data['ids'] = context.get('active_ids', [])
         data['model'] = context.get('active_model', 'ir.ui.menu')
-        data['form'] = self.read(cr, uid, ids[0])
+        data['form'] = self.read( ids[0])
 
         if data['form']['filter'] == 'byperiod':
             del data['form']['date_from']
             del data['form']['date_to']
 
             data['form']['periods'] = self.period_span(
-                cr, uid,
+
                 data['form']['periods'],
                 data['form']['fiscalyear'])
 
         elif data['form']['filter'] == 'bydate':
-            self._check_date(cr, uid, data)
+            self._check_date( data)
             del data['form']['periods']
         elif data['form']['filter'] == 'none':
             del data['form']['date_from']
             del data['form']['date_to']
             del data['form']['periods']
         else:
-            self._check_date(cr, uid, data)
+            self._check_date( data)
             lis2 = str(data['form']['periods']).replace(
                 "[", "(").replace("]", ")")
             sqlmm = """select min(p.date_start) as inicio,

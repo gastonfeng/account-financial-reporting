@@ -113,14 +113,14 @@ class account_financial_report(models.Model):
     _defaults = {
         'display_account_level': lambda *a: 0,
         'inf_type': lambda *a: 'BS',
-        'company_id': lambda self, cr, uid, c:
+        'company_id': lambda self,  c:
         self.pool.get(
             'res.company')._company_default_get(
             cr,
             uid,
             'account.invoice',
             context=c),
-        'fiscalyear_id': lambda self, cr, uid, c:
+        'fiscalyear_id': lambda self,  c:
         self.pool.get('account.fiscalyear').find(cr, uid),
         'display_account': lambda *a: 'bal_mov',
         'columns': lambda *a: 'five',
@@ -131,12 +131,12 @@ class account_financial_report(models.Model):
         'target_move': 'posted',
     }
 
-    def copy(self, cr, uid, id, defaults, context=None):
+    def copy(self,  id, defaults, context=None):
         if context is None:
             context = {}
-        previous_name = self.browse(cr, uid, id, context=context).name
+        previous_name = self.browse( id, context=context).name
         new_name = _('Copy of %s') % previous_name
-        lst = self.search(cr, uid, [(
+        lst = self.search( [(
             'name', 'like', new_name)], context=context)
         if lst:
             new_name = '%s (%s)' % (new_name, len(lst) + 1)
@@ -152,7 +152,7 @@ class account_financial_report(models.Model):
                 context=context)
         )
 
-    def onchange_inf_type(self, cr, uid, ids, inf_type, context=None):
+    def onchange_inf_type(self,  ids, inf_type, context=None):
         if context is None:
             context = {}
         res = {'value': {}}
@@ -162,7 +162,7 @@ class account_financial_report(models.Model):
 
         return res
 
-    def onchange_columns(self, cr, uid, ids, columns,
+    def onchange_columns(self,  ids, columns,
                          fiscalyear_id, period_ids, context=None):
         if context is None:
             context = {}
@@ -173,7 +173,7 @@ class account_financial_report(models.Model):
 
         if columns in ('qtr', 'thirteen'):
             p_obj = self.pool.get("account.period")
-            period_ids = p_obj.search(cr, uid,
+            period_ids = p_obj.search(
                                       [('fiscalyear_id', '=', fiscalyear_id),
                                        ('special', '=', False)],
                                       context=context)
@@ -183,17 +183,17 @@ class account_financial_report(models.Model):
         return res
 
     def onchange_analytic_ledger(
-            self, cr, uid, ids, company_id, analytic_ledger, context=None):
+            self,  ids, company_id, analytic_ledger, context=None):
         if context is None:
             context = {}
         context['company_id'] = company_id
         res = {'value': {}}
         cur_id = self.pool.get('res.company').browse(
-            cr, uid, company_id, context=context).currency_id.id
+             company_id, context=context).currency_id.id
         res['value'].update({'currency_id': cur_id})
         return res
 
-    def onchange_company_id(self, cr, uid, ids, company_id, context=None):
+    def onchange_company_id(self,  ids, company_id, context=None):
         if context is None:
             context = {}
         context['company_id'] = company_id
@@ -203,9 +203,9 @@ class account_financial_report(models.Model):
             return res
 
         cur_id = self.pool.get('res.company').browse(
-            cr, uid, company_id, context=context).currency_id.id
+             company_id, context=context).currency_id.id
         fy_id = self.pool.get('account.fiscalyear').find(
-            cr, uid, context=context)
+             context=context)
         res['value'].update({'fiscalyear_id': fy_id})
         res['value'].update({'currency_id': cur_id})
         res['value'].update({'account_ids': []})

@@ -27,18 +27,18 @@ class account_journal(orm.Model):
     _inherit = 'account.journal'
 
     # allow inherited modules to extend the query
-    def _report_xls_query_extra(self, cr, uid, context=None):
+    def _report_xls_query_extra(self,  context=None):
         select_extra = ""
         join_extra = ""
         where_extra = ""
         return (select_extra, join_extra, where_extra)
 
     # allow inherited modules to add document references
-    def _report_xls_document_extra(self, cr, uid, context):
+    def _report_xls_document_extra(self,  context):
         return "''"
 
     # override list in inherited module to add/drop columns or change order
-    def _report_xls_fields(self, cr, uid, context=None):
+    def _report_xls_fields(self,  context=None):
         res = [
             'move_name',         # account.move,name
             'move_date',         # account.move,date
@@ -73,7 +73,7 @@ class account_journal(orm.Model):
         return res
 
     # Change/Add Template entries
-    def _report_xls_template(self, cr, uid, context=None):
+    def _report_xls_template(self,  context=None):
         """
         Template updates, e.g.
 

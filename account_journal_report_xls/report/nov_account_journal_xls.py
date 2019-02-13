@@ -33,13 +33,13 @@ _logger = logging.getLogger(__name__)
 
 class account_journal_xls_parser(nov_journal_print):
 
-    def __init__(self, cr, uid, name, context):
-        super(account_journal_xls_parser, self).__init__(cr, uid, name,
+    def __init__(self,  name, context):
+        super(account_journal_xls_parser, self).__init__( name,
                                                          context=context)
         journal_obj = self.pool.get('account.journal')
         self.context = context
-        wanted_list = journal_obj._report_xls_fields(cr, uid, context)
-        template_changes = journal_obj._report_xls_template(cr, uid, context)
+        wanted_list = journal_obj._report_xls_fields( context)
+        template_changes = journal_obj._report_xls_template( context)
         self.localcontext.update({
             'datetime': datetime,
             'wanted_list': wanted_list,
