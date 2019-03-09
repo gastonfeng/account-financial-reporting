@@ -3,8 +3,9 @@
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl.html).
 
 from datetime import datetime, timedelta
-from odoo.tools.misc import DEFAULT_SERVER_DATE_FORMAT
+
 from odoo import api, fields, models
+from odoo.tools.misc import DEFAULT_SERVER_DATE_FORMAT
 
 
 class CustomerOutstandingStatement(models.AbstractModel):

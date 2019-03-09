@@ -4,8 +4,8 @@
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
 
 from odoo import models, fields, api
-from odoo.tools.safe_eval import safe_eval
 from odoo.tools import pycompat
+from odoo.tools.safe_eval import safe_eval
 
 
 class OpenItemsReportWizard(models.TransientModel):

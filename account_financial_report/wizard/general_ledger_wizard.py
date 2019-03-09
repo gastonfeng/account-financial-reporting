@@ -8,9 +8,9 @@
 
 
 from odoo import api, fields, models, _
-from odoo.tools.safe_eval import safe_eval
-from odoo.tools import pycompat
 from odoo.exceptions import ValidationError
+from odoo.tools import pycompat
+from odoo.tools.safe_eval import safe_eval
 
 
 class GeneralLedgerReportWizard(models.TransientModel):

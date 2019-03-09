@@ -5,9 +5,9 @@
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
 
 from odoo import api, fields, models, _
-from odoo.tools.safe_eval import safe_eval
-from odoo.tools import pycompat
 from odoo.exceptions import UserError, ValidationError
+from odoo.tools import pycompat
+from odoo.tools.safe_eval import safe_eval
 
 
 class TrialBalanceReportWizard(models.TransientModel):

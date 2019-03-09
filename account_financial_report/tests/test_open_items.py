@@ -3,6 +3,7 @@
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
 
 import time
+
 from . import abstract_test_foreign_currency as a_t_f_c
 
 

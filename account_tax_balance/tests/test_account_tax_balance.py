@@ -2,10 +2,11 @@
 # © 2016 Giovanni Capalbo <giovanni@therp.nl>
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
+from datetime import datetime
+
+from dateutil.rrule import MONTHLY
 from openerp.fields import Date
 from openerp.tests.common import HttpCase
-from datetime import datetime
-from dateutil.rrule import MONTHLY
 
 
 class TestAccountTaxBalance(HttpCase):
